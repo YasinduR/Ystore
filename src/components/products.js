@@ -10,7 +10,7 @@ const Products = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await axios.get('http://localhost:8000/ystore//items'); // Update the URL as needed
+        const response = await axios.get('http://localhost:8000/ystore/items'); // Update the URL as needed
         setProducts(response.data);
       } catch (error) {
         setError('Error fetching product data');
