@@ -1,0 +1,45 @@
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.8); /* 80% opacity */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  
+  .box {
+    background: #1a1a1a; /* Dark gray background for the box */
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+    max-width: 300px;
+    width: 100%;
+    color: #f0f0f0; /* Light text for contrast */
+  }
+  
+  .p {
+    font-size: 1.1rem;
+    margin-bottom: 20px;
+    color: #e0e0e0; /* Slightly lighter text color */
+  }
+  
+  .button {
+    background-color: #444; 
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    margin: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+  }
+  
+  .button:hover {
+    background-color: #555; /* Slightly lighter shade on hover */
+  }
