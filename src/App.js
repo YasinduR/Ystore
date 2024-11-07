@@ -5,7 +5,7 @@ import { HashRouter as Router, Route, Routes, Link } from 'react-router-dom';
 import Home from './components/home';
 import About from './components/about';
 import Contact from './components/contact';
-import Products from './components/products';
+import Products from './components/products/products';
 import Login from './components/login';
 import Cart from './components/cart';
 import Signup from './components/signup';

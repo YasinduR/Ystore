@@ -1,10 +1,62 @@
 import { useEffect, useState } from "react";
 import axios from 'axios';
+import AlertBox from "./alertbox/alertbox";
+import DialogBox from "./dialogbox/dialogbox";
 
 function Cart({ setuserInfo,userInfo, isLoggedIn,setCartDetails,cartDetails}) {
 
   const [selectedItems, setSelectedItems] = useState([]);
   const [totalPrice, setTotalPrice] = useState(0);
+  const [isAlertVisible, setAlertVisible] = useState(false);
+  const [currentAlert, setAlert] = useState("");
+  const [isPurchasingDialogVisible, setPurchasingDialogVisible] = useState(false);
+
+  const showAlert = (Alert) => {
+    setAlert(Alert);
+    setAlertVisible(true);
+  };
+
+  const closeAlert = () => {
+    setAlertVisible(false);
+  };
+
+  const showPurchasingDialog = () => {
+    setPurchasingDialogVisible(true);
+  };
+
+  const closePurchasingDialog = (is_confirmed) => {
+    setPurchasingDialogVisible(false);
+    if(is_confirmed){
+      handleSuccessedPurchase();
+    }
+  };
+
+  const handleSuccessedPurchase=async ()=>{
+    //showAlert("Thank you for shopping with us");
+    const removeItems = cartDetails.filter((item) => selectedItems.includes(item.itemid));
+    // Map to get only the item IDs
+    const removeItemIds = removeItems.map(item => item.itemid);
+
+    console.log(removeItemIds)
+    await axios.put(`http://localhost:8000/ystore/users/cart/removeitems`, {
+      id: userInfo.id,
+      itemids: removeItemIds,
+    }
+    );
+    await updateUserInfo();
+    setSelectedItems([]);
+    showAlert("Thank you for shopping with us");
+  }
+
+    const purchase =()=>{
+      if(totalPrice==0){
+        showAlert("Please Select items to Purchase");
+      }
+      else{
+        showPurchasingDialog();
+      }
+
+    }
 
 
     // Handle checkbox change
@@ -55,14 +107,6 @@ function Cart({ setuserInfo,userInfo, isLoggedIn,setCartDetails,cartDetails}) {
           prevSelectedItems.filter((id) => id !== itemid)
         );
       }
-
-        //console.log('Quantity updated:', response.data);
-
-        //setCartDetails((CartDetails) =>
-        ///  CartDetails.map((item) => 
-        ///      item.itemid === itemid ? { ...item, itemcount: newQuantity } : item
-        //  ).filter(item => item.itemcount >= 1));
-          //updateCartDetails();
           updateUserInfo();
       
       } catch (error) {
@@ -141,7 +185,9 @@ function Cart({ setuserInfo,userInfo, isLoggedIn,setCartDetails,cartDetails}) {
         ))}
       </ul>
       <h3>Total Price of Selected Items: ${totalPrice.toFixed(2)}</h3>
-      <button>Purchase</button>
+      <button onClick={purchase}>Purchase</button>
+      <AlertBox isOpen = {isAlertVisible} onClose={closeAlert} message={currentAlert}/>
+      <DialogBox isOpen = {isPurchasingDialogVisible} onClose={closePurchasingDialog} message="Are you sure to proceed to purchasing ?" />
     </div>
   );
 }
