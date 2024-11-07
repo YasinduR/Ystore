@@ -7,8 +7,8 @@ import About from './components/about';
 import Contact from './components/contact';
 import Products from './components/products/products';
 import Login from './components/login';
-import Cart from './components/cart';
-import Signup from './components/signup';
+import Cart from './components/cart/cart';
+import Signup from './components/signup/signup';
 import DialogBox from './components/dialogbox/dialogbox';
 
 

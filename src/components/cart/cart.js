@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import axios from 'axios';
-import AlertBox from "./alertbox/alertbox";
-import DialogBox from "./dialogbox/dialogbox";
+import AlertBox from "../alertbox/alertbox";
+import DialogBox from "../dialogbox/dialogbox";
+import styles from "./cart.module.css";
+
 
 function Cart({ setuserInfo,userInfo, isLoggedIn,setCartDetails,cartDetails}) {
 
@@ -55,7 +57,6 @@ function Cart({ setuserInfo,userInfo, isLoggedIn,setCartDetails,cartDetails}) {
       else{
         showPurchasingDialog();
       }
-
     }
 
 
@@ -138,6 +139,7 @@ function Cart({ setuserInfo,userInfo, isLoggedIn,setCartDetails,cartDetails}) {
                 price: productData.price,
                 stock: productData.stock,
                 special_price:productData.special_price,
+                images:productData.images
               };
             } catch (error) {
               console.error(`Error fetching product data for item ID ${item.itemid}:`, error);
@@ -160,32 +162,45 @@ function Cart({ setuserInfo,userInfo, isLoggedIn,setCartDetails,cartDetails}) {
   }
   
   return (
-    <div>
-      <h2>Greetings {userInfo.firstname} ! Continue shopping with us</h2>
-      <h2>Your Cart</h2>
-      <ul>
+    
+    <div className={styles.cartContainer}>
+      <h2 className={styles.cartHeader}>Greetings {userInfo.firstname} ! Continue shopping with us</h2>
+      <h2 className={styles.cartHeader}>Your Cart</h2>
+      <ul className={styles.cartList}>
         {cartDetails.map((item, index) => (
-          <li key={index}>
+          <li className={styles.cartItem} key={index}>
             <input
+            className={styles.checkbox}
               type="checkbox"
               onChange={(e) => handleCheckboxChange(item.itemid, e.target.checked)}
               checked={selectedItems.includes(item.itemid)} // Check if the item is selected
               disabled = {item.stock < item.itemcount} // Disable checking out if stock is less than item count
             />
-            <p>Product Name: {item.name}</p>
-            <p>Product id: {item.itemid}</p>
+
+            <p>{item.name}</p>
+            <img src={item.images[0]} alt={item.name} className={styles.productImage} />
+            <div className={ styles.productText}>
             <p>Quantity: {item.itemcount}</p>
-            <p>Price: {item.price}</p>
-            <p>Special Price: {item.special_price}</p>
+            {!item.special_price ? (
+            <p>Price: ${item.price}</p>
+                ) : (
+            <p>
+            Price: <s className={styles.strike}>${item.price}</s> ${item.special_price}
+          </p>
+          
+          )}
             <p>stock: {item.stock}</p>
-            <button onClick={() => updateQuantity(item.itemid, 0)}>delete</button>
-            <button onClick={() => updateQuantity(item.itemid, item.itemcount + 1)}>+</button>
-            <button  onClick={() => updateQuantity(item.itemid, item.itemcount - 1)} disabled={item.itemcount <= 1}>-</button>
+            </div>
+            <div className={ styles.buttonContainer}>
+            <button className ={`${styles.button} ${styles.redbutton}`} onClick={() => updateQuantity(item.itemid, 0)}>Remove from Cart</button>
+            <button className ={`${styles.button} ${styles.purplebutton}`} onClick={() => updateQuantity(item.itemid, item.itemcount + 1)}>+</button>
+            <button className ={`${styles.button} ${styles.purplebutton}`} onClick={() => updateQuantity(item.itemid, item.itemcount - 1)} disabled={item.itemcount <= 1}>-</button>
+            </div>
           </li>
         ))}
       </ul>
       <h3>Total Price of Selected Items: ${totalPrice.toFixed(2)}</h3>
-      <button onClick={purchase}>Purchase</button>
+      <button className ={`${styles.button} ${styles.greenbutton}`} onClick={purchase}>Purchase</button>
       <AlertBox isOpen = {isAlertVisible} onClose={closeAlert} message={currentAlert}/>
       <DialogBox isOpen = {isPurchasingDialogVisible} onClose={closePurchasingDialog} message="Are you sure to proceed to purchasing ?" />
     </div>

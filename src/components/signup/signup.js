@@ -2,7 +2,8 @@
 import React, { useState,useEffect } from 'react';
 import { useNavigate } from 'react-router-dom'; 
 import axios from 'axios';
-import AlertBox from './alertbox/alertbox'
+import AlertBox from '../alertbox/alertbox'
+import styles from './signup.module.css'
 // function to format input to sentence case
 const toSentenceCase = (str) => {
   return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
@@ -151,12 +152,13 @@ const SignUp = () => {
   };
 
   return (
-    <div className="signup-container">
+    <div className={styles.signupContainer}>
       <h2>Sign Up</h2>
       <form onSubmit={handleSubmit}>
-        <div>
+        <div className={styles.formGroupRow}>
           <label htmlFor="firstName">First Name</label>
-          <input
+          <div className={styles.formGroup}>
+          <input 
             type="text"
             name="firstName"
             id="firstName"
@@ -165,10 +167,13 @@ const SignUp = () => {
             onChange={handleChange}
             required
           />
+          {N1error && <small className={styles.errortext}>First name must be at least 5 characters.</small>}
+          </div>
         </div>
         
-        <div>
+        <div className={styles.formGroupRow}>
           <label htmlFor="lastName">Last Name</label>
+          <div className={styles.formGroup}>
           <input
             type="text"
             name="lastName"
@@ -178,10 +183,13 @@ const SignUp = () => {
             onChange={handleChange}
             required
           />
+          {N2error && <small className={styles.errortext}>Last name must be at least 5 characters.</small>}
+        </div>
         </div>
 
-        <div>
+        <div className={styles.formGroupRow}>
           <label htmlFor="address">Address</label>
+          <div className={styles.formGroup}>
           <input
             type="text"
             name="address"
@@ -190,10 +198,12 @@ const SignUp = () => {
             onChange={handleChange}
             required
           />
+    </div>
         </div>
 
-        <div>
+        <div className={styles.formGroupRow}>
           <label htmlFor="hometown">Hometown</label>
+          <div className={styles.formGroup}>
           <input
             type="text"
             name="hometown"
@@ -202,10 +212,12 @@ const SignUp = () => {
             onChange={handleChange}
             required
           />
+          </div>
         </div>
 
-        <div>
+        <div className={styles.formGroupRow}>
           <label htmlFor="email">Email</label>
+          <div className={styles.formGroup}>
           <input
             type="email"
             name="email"
@@ -214,10 +226,13 @@ const SignUp = () => {
             onChange={handleChange}
             required
           />
+          {emailerror && <small className={styles.errortext} >Enter a valid email</small>}
+          </div>
         </div>
 
-        <div>
+        <div className={styles.formGroupRow}>
           <label htmlFor="password">Password</label>
+          <div className={styles.formGroup}>
           <input
             type="password"
             name="password"
@@ -226,9 +241,11 @@ const SignUp = () => {
             onChange={handleChange}
             required
           />
+          </div>
         </div>
-        <div>
+        <div className={styles.formGroupRow}>
           <label htmlFor="confirmPassword">Confirm Password</label>
+          <div className={styles.formGroup}>
           <input
             type="password"
             name="confirmPassword"
@@ -237,10 +254,11 @@ const SignUp = () => {
             onChange={handleChange}
             required
           />
+          {Pwerror && <small className={styles.errortext} >Passwords do not match!</small>}
+        </div> 
         </div> 
 
-        {/* dO CSS styling based on ERROR LATER*/}
-        {Pwerror && <p style={{ color: 'red' }}>Passwords do not match!</p>}
+        
 
         <button type="submit">Sign Up</button>
       </form>
