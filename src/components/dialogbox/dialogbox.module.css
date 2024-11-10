@@ -29,15 +29,15 @@
   }
   
   .button {
-    background-color: #444; 
-    color: #fff;
-    border: none;
-    padding: 10px 20px;
-    margin: 5px;
-    cursor: pointer;
-    font-size: 16px;
-    border-radius: 4px;
-    transition: background-color 0.3s ease;
+    background-color: #444 !important;  
+    color: #fff !important;
+    border: none !important;
+    padding: 10px 20px !important;
+    margin: 5px !important;
+    cursor: pointer !important;
+    font-size: 16px !important;
+    border-radius: 4px !important;
+    transition: background-color 0.3s ease !important;
   }
   
   .button:hover {

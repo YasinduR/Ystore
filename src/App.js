@@ -6,7 +6,7 @@ import Home from './components/home';
 import About from './components/about';
 import Contact from './components/contact';
 import Products from './components/products/products';
-import Login from './components/login';
+import Login from './components/login/login';
 import Cart from './components/cart/cart';
 import Signup from './components/signup/signup';
 import DialogBox from './components/dialogbox/dialogbox';
@@ -55,9 +55,8 @@ function App() {
             (<a onClick={handleLogoutRequest}>Logout</a>):
             (<Link to="/login">Login</Link>)}
             </li>
-            <li>{isLoggedIn ? 
-            (<Link to="/cart">Cart</Link>):
-            (<a></a>)}
+            <li>
+            {isLoggedIn && <Link to="/cart">Cart</Link>}
             </li>
             <li>{isLoggedIn ? 
             (<a onClick={handleSigninRequest}>Sign-up</a>):

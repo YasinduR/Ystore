@@ -1,21 +1,30 @@
 // src/components/Login.js
-import React, { useState} from 'react';
+import React, { useState,useEffect} from 'react';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import axios from 'axios';
-import AlertBox from './alertbox/alertbox'
+import AlertBox from '../alertbox/alertbox'
+import styles from './login.module.css'
 
 
+
+const validateEmail=(email)=> {
+  const regex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  return regex.test(email);
+}
 
 const Login = ({ setIsLoggedIn,setuserInfo }) => {
   const navigate = useNavigate(); // Initialize useNavigate hook
-  const [email, setEmail] = useState('saman.perera@example.com');
+  const [email, setEmail] = useState('saman.perera@example.com'); // For ease the test add defualt user acc user name and pwd
   const [password, setPassword] = useState('password123');
   const [error, setError] = useState(null);
   const [isAlertVisible, setAlertVisible] = useState(false);
+  const [emailError,setemailError] =useState(false)
+  const [isloginlocked,setloginlock] = useState(false)
 
   const showAlert = () => {
     console.log("Alert shown")
     setAlertVisible(true);
+    
   };
 
   const closeAlert = () => {
@@ -24,7 +33,19 @@ const Login = ({ setIsLoggedIn,setuserInfo }) => {
     navigate('/');// Navigate to the home page
   };
 
-  
+  useEffect(()=>{
+    if(!validateEmail(email)&&email.length>0){
+      setError("Invalid email")
+      setemailError(true)
+    }
+    else{
+      setError(null)
+      setemailError(false)
+    }
+
+  },[email])
+
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
@@ -42,10 +63,16 @@ const Login = ({ setIsLoggedIn,setuserInfo }) => {
 
               
     } catch (err) { 
+
       if (err.response) {
         const status = err.response.status;
         if (status === 401) {
-          setError('Invalid username or password.');
+          setError('Invalid email or password.');
+          setloginlock(true) //lock login button
+          setTimeout(() => {
+            setloginlock(false) //unlock login button
+            console.log("This message will appear after 2 seconds.");
+          }, 2000);
         }
     }
     else{
@@ -54,12 +81,12 @@ const Login = ({ setIsLoggedIn,setuserInfo }) => {
   };
   };
   return (
-    <div className="login-container">
+    <div className={styles.loginContainer}>
       <h2>Login</h2>
-      {error && <div className="error-message">{error}</div>}
       <form onSubmit={handleSubmit}>
-        <div>
+        <div className={styles.formGroupRow}>
           <label>Email:</label>
+          <div className={styles.formGroupRow}>
           <input 
             type="email"
             value={email}
@@ -67,9 +94,11 @@ const Login = ({ setIsLoggedIn,setuserInfo }) => {
             //placeholder=""  // add place holder later
             required
           />
+          </div>
         </div>
-        <div>
+        <div className={styles.formGroupRow}>
           <label>Password:</label>
+          <div className={styles.formGroupRow}>
           <input 
             type="password"
             value={password}
@@ -78,8 +107,11 @@ const Login = ({ setIsLoggedIn,setuserInfo }) => {
             required
           />
         </div>
-        <button type="submit">Login</button>
+        </div>
+        {error && <div className={styles.errorText}>{error}</div>}
+        <button disabled={emailError||isloginlocked} type="submit">Login</button>
       </form>
+      
     <AlertBox isOpen = {isAlertVisible} onClose={closeAlert} message="You have logged in!" />
        
     </div>

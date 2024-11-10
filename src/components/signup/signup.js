@@ -14,6 +14,15 @@ const validateEmail=(email)=> {
   return regex.test(email);
 }
 
+const isempty=(string_)=>{
+  if(string_.length==0){
+    return true
+  }
+  else{
+    return false
+  }
+
+}
 
 const SignUp = () => {
   const navigate = useNavigate();
@@ -32,10 +41,39 @@ const SignUp = () => {
   const [N1error, setN1Error] = useState(false); //Fisrname  error
   const [N2error, setN2Error] = useState(false); //second name error
   const [emailerror, setemailError] = useState(true); //email  error
-  
+
+  const [currentAlert, setAlert] = useState(""); // Alerts
+  const [isAlertVisible, setAlertVisible] = useState(false);
+
+  const showAlert = (Alert) => {
+    setAlert(Alert);
+    setAlertVisible(true);
+  };
+
+  const closeAlert = () => {
+    setAlertVisible(false);
+    if(currentAlert==='User created successfully!'){
+      navigate('/'); // Redirect to home page
+    }
+    
+  };
+
+
+  useEffect(()=>{
+    if(!validateEmail(formData.email)&&formData.email.length>0){
+      setemailError(true)
+    }
+    else{
+      setemailError(false)
+    }
+
+  },[formData.email])
+
+
 
   // Effect to check if passwords match
   useEffect(() => {
+
       if (formData.password.length>0 && formData.confirmPassword.length>0) {
         setPwError(formData.password !== formData.confirmPassword);
       } else {
@@ -45,14 +83,14 @@ const SignUp = () => {
 
   // Effect to sanitize input fields
   useEffect(() => {
-    if(formData.firstName.length<5){
+    if(formData.firstName.length<5 && formData.firstName.length>0 ){
       setN1Error(true) // first namelength is not suffient
     }
     else{
       setN1Error(false)
     }
     
-    if(formData.lastName.length<5){
+    if(formData.lastName.length<5 && formData.lastName.length>0 ){
       setN2Error(true) // last name length is not suffient
     }
     else{
@@ -114,40 +152,22 @@ const SignUp = () => {
         });
     // On success, alert and navigate to home
       if (response.status === 201) {
-        alert('User created successfully!');
-        navigate('/'); // Redirect to home page
+        showAlert('User created successfully!');
+        //navigate('/'); // Redirect to home page
       }
       } catch (err) {
         if (err.response) {
           const status = err.response.status;
           if (status === 409) {
-            alert('Email already exists.');
+            //alert('Email already exists.');
+            showAlert('Email already exists.');
           }
           // add other alerts
         } else {
           alert('Something went wrong. Try again.');
+          showAlert('Email already exists.');
         }
       };
-    }
-    else{
-      let msg = "";
-  
-      // Collect error messages based on specific errors
-      if (emailerror) {
-        msg += "Invalid email format. ";
-      }
-      if (Pwerror) {
-        msg += "Password must meet the required criteria. ";
-      }
-      if (N1error) {
-        msg += "First name is required. ";
-      }
-      if (N2error) {
-        msg += "Last name is required. ";
-      }
-      
-      // Show the error messages
-      alert(msg.trim());
     }
   };
 
@@ -260,8 +280,20 @@ const SignUp = () => {
 
         
 
-        <button type="submit">Sign Up</button>
+        <button disabled={
+          emailerror || 
+          Pwerror || 
+          N1error || 
+          N2error ||
+          isempty(formData.firstName)||
+          isempty(formData.lastName)||
+          isempty(formData.address)||
+          isempty(formData.email)||
+          isempty(formData.password)||
+          isempty(formData.confirmPassword)
+          } type="submit">Sign Up</button>
       </form>
+      <AlertBox isOpen = {isAlertVisible} onClose={closeAlert} message={currentAlert}/>
     </div>
   );
 };
