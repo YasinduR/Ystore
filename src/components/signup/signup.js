@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import AlertBox from '../alertbox/alertbox'
 import styles from './signup.module.css'
+import DialogBox from '../dialogbox/dialogbox';
 // function to format input to sentence case
 const toSentenceCase = (str) => {
   return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
@@ -24,7 +25,14 @@ const isempty=(string_)=>{
 
 }
 
-const SignUp = () => {
+const SignUp = ({ userInfo, isLoggedIn,setIsLoggedIn,setuserInfo}) => {
+
+  
+
+
+
+
+
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     firstName: '',
@@ -45,6 +53,17 @@ const SignUp = () => {
   const [currentAlert, setAlert] = useState(""); // Alerts
   const [isAlertVisible, setAlertVisible] = useState(false);
 
+
+  const [isDialogOpen, setIsDialogOpen] = useState(true);// Forced logout when create new acc
+  const [dialogmsg, setDialogmsg] = useState(() => { // Conditional useState
+    if (userInfo) {
+      return userInfo.firstname +" , before Sign-up you have to log out from the current account. Are you sure to logout ?";
+    } else {
+      return null; 
+    }
+  });
+
+  
   const showAlert = (Alert) => {
     setAlert(Alert);
     setAlertVisible(true);
@@ -164,12 +183,30 @@ const SignUp = () => {
           }
           // add other alerts
         } else {
-          alert('Something went wrong. Try again.');
-          showAlert('Email already exists.');
+          showAlert('Something went wrong. Try again.');
         }
       };
     }
   };
+
+  const handleLogoutConfirm = (confirm) => {  // Yes on dialog box will give
+    setIsDialogOpen(false);
+    if (confirm) {
+      setuserInfo(null);
+      setIsLoggedIn(false);
+    }
+  };
+
+
+  if(isLoggedIn){
+      return(
+      <div>
+      <h2>You have already logged in</h2>
+      <DialogBox isOpen = {isDialogOpen} onClose={handleLogoutConfirm} message= {dialogmsg} />
+      </div>
+      
+    )
+  }
 
   return (
     <div className={styles.signupContainer}>

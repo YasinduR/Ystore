@@ -1,11 +1,23 @@
 .App {
   text-align: center;
-  
 }
 
 body{
   background-color: #555;
+  color: #ffffff;
+  
 }
+
+h1{
+  text-align: center;
+}
+
+p{
+  padding: 5px;
+  
+}
+
+
 
 .App-logo {
   height: 40vmin;
@@ -19,7 +31,7 @@ body{
 }
 
 .App-header {
-  background-color: #282c34;
+  background-color: #222;
   min-height: 50vh;
   display: flex;
   flex-direction: column;
@@ -46,7 +58,7 @@ body{
 /* Nav bar*/
 
 nav {
-  background-color: #333;
+  background-color: #222;
   padding: 20px;
 }
 

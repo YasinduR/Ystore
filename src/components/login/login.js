@@ -3,6 +3,7 @@ import React, { useState,useEffect} from 'react';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import axios from 'axios';
 import AlertBox from '../alertbox/alertbox'
+import DialogBox from '../dialogbox/dialogbox';
 import styles from './login.module.css'
 
 
@@ -12,7 +13,7 @@ const validateEmail=(email)=> {
   return regex.test(email);
 }
 
-const Login = ({ setIsLoggedIn,setuserInfo }) => {
+const Login = ({ isLoggedIn,setIsLoggedIn,setuserInfo }) => {
   const navigate = useNavigate(); // Initialize useNavigate hook
   const [email, setEmail] = useState('saman.perera@example.com'); // For ease the test add defualt user acc user name and pwd
   const [password, setPassword] = useState('password123');
@@ -80,6 +81,13 @@ const Login = ({ setIsLoggedIn,setuserInfo }) => {
     }
   };
   };
+  if(isLoggedIn && !isAlertVisible){ // Already logged in but alert not showing => when browse to login page throu url
+    return(
+      <div>
+    <h2>You have already logged in</h2>
+      </div>
+  )
+  }
   return (
     <div className={styles.loginContainer}>
       <h2>Login</h2>
@@ -115,7 +123,8 @@ const Login = ({ setIsLoggedIn,setuserInfo }) => {
     <AlertBox isOpen = {isAlertVisible} onClose={closeAlert} message="You have logged in!" />
        
     </div>
-    
+
+
   );
 };
 

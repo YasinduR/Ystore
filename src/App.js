@@ -2,9 +2,9 @@ import logo from './logo.svg';
 import './App.css';
 import React, { useState } from 'react';
 import { HashRouter as Router, Route, Routes, Link } from 'react-router-dom';
-import Home from './components/home';
-import About from './components/about';
-import Contact from './components/contact';
+import Home from './components/home/home';
+import About from './components/about/about';
+import Contact from './components/contact/contact';
 import Products from './components/products/products';
 import Login from './components/login/login';
 import Cart from './components/cart/cart';
@@ -19,14 +19,6 @@ function App() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [dialogmsg,SetDialogmsg] = useState(null);
 
-
-
-  const handleSigninRequest = () => {
-    if(isLoggedIn){
-      SetDialogmsg(userInfo.firstname +", before Sign-up you have to log out from the current account. Are you sure to logout ?")
-      setIsDialogOpen(true); // Open confirmation dialog
-    }
-  };
 
   const handleLogoutRequest = () => {
     SetDialogmsg(userInfo.firstname+", are you sure to logout ?")
@@ -58,9 +50,8 @@ function App() {
             <li>
             {isLoggedIn && <Link to="/cart">Cart</Link>}
             </li>
-            <li>{isLoggedIn ? 
-            (<a onClick={handleSigninRequest}>Sign-up</a>):
-            (<Link to="/signup">Sign-up</Link>)}
+            <li>
+            <Link to="/signup">Sign-up</Link>
             </li>
           </ul>
         </nav>
@@ -70,9 +61,9 @@ function App() {
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/products" element={<Products isLoggedIn={isLoggedIn} setuserInfo={setuserInfo} userInfo={userInfo} setCartDetails={setCartDetails} cartDetails ={cartDetails} />} />
-          <Route path="/login" element={<Login setIsLoggedIn={setIsLoggedIn} setuserInfo={setuserInfo}/>} />
+          <Route path="/login" element={<Login isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} setuserInfo={setuserInfo}/>} />
           <Route path="/cart" element={<Cart isLoggedIn={isLoggedIn} setuserInfo={setuserInfo} userInfo={userInfo} setCartDetails={setCartDetails} cartDetails ={cartDetails}  />} />
-          <Route path="/signup" element={<Signup/>} />    
+          <Route path="/signup" element={<Signup isLoggedIn={isLoggedIn} userInfo={userInfo} setIsLoggedIn={setIsLoggedIn} setuserInfo={setuserInfo}/>} />    
         </Routes>
       
         {isDialogOpen && (
