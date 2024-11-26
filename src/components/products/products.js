@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 //import AlertBox from './alertbox/alertbox';
 import DialogBox from '../dialogbox/dialogbox';
-import {useNavigate} from 'react-router-dom';
+import {useNavigate, Link} from 'react-router-dom';
+//import { Link } from 'react-router-dom';
 import styles from './products.module.css'
 //import './Product.css';
 
@@ -25,6 +26,7 @@ function ProductItem({ product, isInCart, itemCount, updateQuantity}) {
   };
 
   return (
+    <Link to={`/products/${product.id}`} className={styles.productLink}>
     <div className={styles.product} key={product.id}>
       <h2>{product.name}</h2>
 
@@ -73,23 +75,9 @@ function ProductItem({ product, isInCart, itemCount, updateQuantity}) {
   )}
 </div>
     </div>
+   </Link>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 function Products({ userInfo,setuserInfo, isLoggedIn,setCartDetails,cartDetails }){
   const navigate = useNavigate(); // Initialize useNavigate hook
@@ -132,12 +120,6 @@ function Products({ userInfo,setuserInfo, isLoggedIn,setCartDetails,cartDetails 
             itemid: itemid,
             itemcount: newQuantity
           });
-          //console.log('Quantity updated:', response.data);
-          //
-          //setCartDetails((CartDetails) =>
-           // CartDetails.map((item) => 
-            //    item.itemid === itemid ? { ...item, itemcount: newQuantity } : item
-           // ).filter(item => item.itemcount > 0)
            updateUserInfo()
         }
         else{

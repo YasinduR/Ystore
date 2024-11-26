@@ -19,8 +19,8 @@ const Login = ({ isLoggedIn,setIsLoggedIn,setuserInfo }) => {
   const [password, setPassword] = useState('password123');
   const [error, setError] = useState(null);
   const [isAlertVisible, setAlertVisible] = useState(false);
-  const [emailError,setemailError] =useState(false)
-  const [isloginlocked,setloginlock] = useState(false)
+  const [emailError,setemailError] =useState(false);
+  const [isloginlocked,setloginlock] = useState(false);
 
   const showAlert = () => {
     console.log("Alert shown")

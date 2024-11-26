@@ -3,6 +3,7 @@ import './App.css';
 import React, { useState } from 'react';
 import { HashRouter as Router, Route, Routes, Link } from 'react-router-dom';
 import Home from './components/home/home';
+import App2 from './components/test/test';
 import About from './components/about/about';
 import Contact from './components/contact/contact';
 import Products from './components/products/products';
@@ -10,6 +11,7 @@ import Login from './components/login/login';
 import Cart from './components/cart/cart';
 import Signup from './components/signup/signup';
 import DialogBox from './components/dialogbox/dialogbox';
+import ProductDetails from './components/product/product';
 
 
 function App() {
@@ -58,9 +60,11 @@ function App() {
 
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/test" element={<App2 />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/products" element={<Products isLoggedIn={isLoggedIn} setuserInfo={setuserInfo} userInfo={userInfo} setCartDetails={setCartDetails} cartDetails ={cartDetails} />} />
+          <Route path="/products/:productId" element={<ProductDetails setuserInfo={setuserInfo} userInfo={userInfo} />} />
           <Route path="/login" element={<Login isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} setuserInfo={setuserInfo}/>} />
           <Route path="/cart" element={<Cart isLoggedIn={isLoggedIn} setuserInfo={setuserInfo} userInfo={userInfo} setCartDetails={setCartDetails} cartDetails ={cartDetails}  />} />
           <Route path="/signup" element={<Signup isLoggedIn={isLoggedIn} userInfo={userInfo} setIsLoggedIn={setIsLoggedIn} setuserInfo={setuserInfo}/>} />    
