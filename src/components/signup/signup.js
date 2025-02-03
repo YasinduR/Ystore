@@ -1,10 +1,11 @@
 // src/components/SignUp.js
 import React, { useState,useEffect } from 'react';
 import { useNavigate } from 'react-router-dom'; 
-import axios from 'axios';
+//import axios from 'axios';
 import AlertBox from '../alertbox/alertbox'
 import styles from './signup.module.css'
 import DialogBox from '../dialogbox/dialogbox';
+import api from '../../api';
 // function to format input to sentence case
 const toSentenceCase = (str) => {
   return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
@@ -76,6 +77,10 @@ const SignUp = ({ userInfo, isLoggedIn,setIsLoggedIn,setuserInfo}) => {
     }
     
   };
+
+  
+
+
 
 
   useEffect(()=>{
@@ -161,7 +166,7 @@ const SignUp = ({ userInfo, isLoggedIn,setIsLoggedIn,setuserInfo}) => {
       const password = formData.password;
 
       try {
-        const response = await axios.post('http://localhost:8000/ystore/users', {
+        const response = await api.post('/users', {
           firstname,
           lastname,
           address,

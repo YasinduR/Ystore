@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+//import axios from 'axios';
 //import AlertBox from './alertbox/alertbox';
 import DialogBox from '../dialogbox/dialogbox';
 import {useNavigate, Link} from 'react-router-dom';
 //import { Link } from 'react-router-dom';
 import styles from './products.module.css'
 //import './Product.css';
-
+import api from '../../api'; // Import the Axios instance
 
 function ProductItem({ product, isInCart, itemCount, updateQuantity}) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -26,7 +26,7 @@ function ProductItem({ product, isInCart, itemCount, updateQuantity}) {
   };
 
   return (
-    <Link to={`/products/${product.id}`} className={styles.productLink}>
+   // <Link to={`/products/${product.id}`} className={styles.productLink}>
     <div className={styles.product} key={product.id}>
       <h2>{product.name}</h2>
 
@@ -75,7 +75,7 @@ function ProductItem({ product, isInCart, itemCount, updateQuantity}) {
   )}
 </div>
     </div>
-   </Link>
+  // </Link>
   );
 }
 
@@ -105,7 +105,7 @@ function Products({ userInfo,setuserInfo, isLoggedIn,setCartDetails,cartDetails 
     console.log('Cart changed');
     if(userInfo){
     console.log('id: '+userInfo.id)
-    const updated_userinfo_res = await axios.get(`http://localhost:8000/ystore/users/${userInfo.id}`);
+    const updated_userinfo_res = await api.get(`/users/${userInfo.id}`);
     console.log(updated_userinfo_res)
     if(updated_userinfo_res){
       setuserInfo(updated_userinfo_res.data)
@@ -115,7 +115,7 @@ function Products({ userInfo,setuserInfo, isLoggedIn,setCartDetails,cartDetails 
       const updateQuantity = async (itemid,newQuantity) => {
         try {
           if (userInfo){
-          await axios.post(`http://localhost:8000/ystore/users/cart`, {
+          await api.post(`/users/cart`, {
             id: userInfo.id,
             itemid: itemid,
             itemcount: newQuantity
@@ -132,18 +132,17 @@ function Products({ userInfo,setuserInfo, isLoggedIn,setCartDetails,cartDetails 
       };
 
   useEffect(() => {
-    const fetchProducts = async () => {
+    async function fetchProducts() {
       try {
-        const response = await axios.get('http://localhost:8000/ystore/items'); // Update the URL as needed
+        const response = await api.get('/items');
+        console.log('Request URL:', response.config.url); // Log the request URL
         setProducts(response.data);
-
-      } catch (error) {
-        setError('Error fetching product data');
+      } catch (err) {
+        setError('Failed to load product data.');
       } finally {
         setLoading(false);
       }
-    };
-
+    }
     fetchProducts();
   }, []);
 

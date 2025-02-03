@@ -3,6 +3,7 @@ import axios from 'axios';
 import AlertBox from "../alertbox/alertbox";
 import DialogBox from "../dialogbox/dialogbox";
 import styles from "./cart.module.css";
+import api from "../../api";
 
 
 function Cart({ setuserInfo,userInfo, isLoggedIn,setCartDetails,cartDetails}) {
@@ -33,14 +34,14 @@ function Cart({ setuserInfo,userInfo, isLoggedIn,setCartDetails,cartDetails}) {
     }
   };
 
-  const handleSuccessedPurchase=async ()=>{
+  const handleSuccessedPurchase_=async ()=>{
     //showAlert("Thank you for shopping with us");
     const removeItems = cartDetails.filter((item) => selectedItems.includes(item.itemid));
     // Map to get only the item IDs
     const removeItemIds = removeItems.map(item => item.itemid);
 
     console.log(removeItemIds)
-    await axios.put(`http://localhost:8000/ystore/users/cart/removeitems`, {
+    await api.put(`/users/cart/removeitems`, {
       id: userInfo.id,
       itemids: removeItemIds,
     }
@@ -58,6 +59,44 @@ function Cart({ setuserInfo,userInfo, isLoggedIn,setCartDetails,cartDetails}) {
         showPurchasingDialog();
       }
     }
+
+
+    const handleSuccessedPurchase = async () => {
+      const removeItems = cartDetails.filter((item) => selectedItems.includes(item.itemid));
+      console.log(removeItems);
+      // Map to get only the item IDs
+      const removeItemIds = removeItems.map(item => item.itemid);
+      try {
+        if (removeItems.length === 0) {
+          throw new Error("No items are selected"); // Create and throw a new error with a message
+        }
+        let cart_ = [];
+        for (const item of removeItems) {
+          cart_.push({
+            id: item.itemid,
+            quantity: item.itemcount,
+            price: item.itemcount * item.special_price
+          });
+        }
+        console.log(cart_);
+        const transactionData = {
+          userid: userInfo.id,
+          amount: parseFloat(totalPrice),
+          type:"ONLINE",
+          cart: { items: cart_},
+        };
+        const response = await api.post("/transaction", transactionData);
+  
+        await updateUserInfo();
+        setSelectedItems([]);
+        showAlert("Thank you for shopping with us");
+      } catch (err) {
+        showAlert('Failed to log transaction.','ok');
+      }
+    };
+
+
+
 
 
     // Handle checkbox change
@@ -88,14 +127,14 @@ function Cart({ setuserInfo,userInfo, isLoggedIn,setCartDetails,cartDetails}) {
     }, [selectedItems, cartDetails]);
 
   useEffect(() => { // Runs after userinfo.cart updated
-    console.log('Component initialized');
+    console.log('Cart Update....');
     updateCartDetails();
   }, [userInfo]); 
 
 // Function to handle quantity update via API
   const updateQuantity = async (itemid,newQuantity) => {
       try {
-        await axios.post(`http://localhost:8000/ystore/users/cart`, {
+        await api.post(`/users/cart`, {
           id: userInfo.id,
           itemid: itemid,
           itemcount: newQuantity
@@ -119,7 +158,7 @@ function Cart({ setuserInfo,userInfo, isLoggedIn,setCartDetails,cartDetails}) {
       console.log('Cart changed');
       if(userInfo){
       console.log('id: '+userInfo.id)
-      const updated_userinfo_res = await axios.get(`http://localhost:8000/ystore/users/${userInfo.id}`);
+      const updated_userinfo_res = await api.get(`/users/${userInfo.id}`);
       console.log(updated_userinfo_res)
       if(updated_userinfo_res){
         setuserInfo(updated_userinfo_res.data)
@@ -131,8 +170,8 @@ function Cart({ setuserInfo,userInfo, isLoggedIn,setCartDetails,cartDetails}) {
         const updatedCart = await Promise.all(
           userInfo.cart.map(async (item) => {
             try {
-              const response = await fetch(`http://localhost:8000/ystore/items/${item.itemid}`); 
-              const productData = await response.json();
+              const response = await api.get(`/items/${item.itemid}`); 
+              const productData = response.data;
               return {
                 ...item,
                 name: productData.name,

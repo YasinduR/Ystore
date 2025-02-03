@@ -5,7 +5,7 @@ import axios from 'axios';
 import AlertBox from '../alertbox/alertbox'
 import DialogBox from '../dialogbox/dialogbox';
 import styles from './login.module.css'
-
+import api from '../../api'
 
 
 const validateEmail=(email)=> {
@@ -15,7 +15,7 @@ const validateEmail=(email)=> {
 
 const Login = ({ isLoggedIn,setIsLoggedIn,setuserInfo }) => {
   const navigate = useNavigate(); // Initialize useNavigate hook
-  const [email, setEmail] = useState('saman.perera@example.com'); // For ease the test add defualt user acc user name and pwd
+  const [email, setEmail] = useState('YASINDU1@EXAMPLE.COM'); // For ease the test add defualt user acc user name and pwd
   const [password, setPassword] = useState('password123');
   const [error, setError] = useState(null);
   const [isAlertVisible, setAlertVisible] = useState(false);
@@ -50,10 +50,7 @@ const Login = ({ isLoggedIn,setIsLoggedIn,setuserInfo }) => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
-      const response = await axios.post('http://localhost:8000/ystore/users/login', {
-        email,
-        password
-      });
+      const response = await api.post('/users/login', { email, password });
       console.log(response.data); // Handle the login success response here
       //alert('Login successful!');
       //Send user info to the app
