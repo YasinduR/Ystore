@@ -16,7 +16,7 @@ const validateEmail=(email)=> {
 const Login = ({ isLoggedIn,setIsLoggedIn,setuserInfo }) => {
   const navigate = useNavigate(); // Initialize useNavigate hook
   const [email, setEmail] = useState('YASINDU1@EXAMPLE.COM'); // For ease the test add defualt user acc user name and pwd
-  const [password, setPassword] = useState('password123');
+  const [password, setPassword] = useState('12345');
   const [error, setError] = useState(null);
   const [isAlertVisible, setAlertVisible] = useState(false);
   const [emailError,setemailError] =useState(false);

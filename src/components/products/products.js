@@ -1,11 +1,7 @@
 import React, { useEffect, useState } from 'react';
-//import axios from 'axios';
-//import AlertBox from './alertbox/alertbox';
 import DialogBox from '../dialogbox/dialogbox';
 import {useNavigate, Link} from 'react-router-dom';
-//import { Link } from 'react-router-dom';
 import styles from './products.module.css'
-//import './Product.css';
 import api from '../../api'; // Import the Axios instance
 
 function ProductItem({ product, isInCart, itemCount, updateQuantity}) {
@@ -69,7 +65,7 @@ function ProductItem({ product, isInCart, itemCount, updateQuantity}) {
   </button>
   {isInCart && (
     <>
-      <button className={`${styles.button} ${styles.purplebutton}`} onClick={() => updateQuantity(product.id, itemCount + 1)}>+</button>
+      <button className={`${styles.button} ${styles.purplebutton}`} onClick={() => updateQuantity(product.id, itemCount + 1)} disabled={itemCount >= product.stock}>+</button>
       <button className={`${styles.button} ${styles.purplebutton}`} onClick={() => updateQuantity(product.id, itemCount - 1)} disabled={itemCount <= 1}>-</button>
     </>
   )}
@@ -79,11 +75,11 @@ function ProductItem({ product, isInCart, itemCount, updateQuantity}) {
   );
 }
 
-function Products({ userInfo,setuserInfo, isLoggedIn,setCartDetails,cartDetails }){
+function Products({products, userInfo,cart,updateQuantity }){
   const navigate = useNavigate(); // Initialize useNavigate hook
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  
+  //const [loading, setLoading] = useState(true);
+ // const [error, setError] = useState(null);
   const [isAlertVisible, setAlertVisible] = useState(false);
 
 
@@ -101,53 +97,11 @@ function Products({ userInfo,setuserInfo, isLoggedIn,setCartDetails,cartDetails 
   };
 
 
-  const updateUserInfo = async () => {
-    console.log('Cart changed');
-    if(userInfo){
-    console.log('id: '+userInfo.id)
-    const updated_userinfo_res = await api.get(`/users/${userInfo.id}`);
-    console.log(updated_userinfo_res)
-    if(updated_userinfo_res){
-      setuserInfo(updated_userinfo_res.data)
-    }}
-  }
-      // Function to handle quantity update in cart via API
-      const updateQuantity = async (itemid,newQuantity) => {
-        try {
-          if (userInfo){
-          await api.post(`/users/cart`, {
-            id: userInfo.id,
-            itemid: itemid,
-            itemcount: newQuantity
-          });
-           updateUserInfo()
-        }
-        else{
-          showAlert(); // invoke the alert to force log-in
-        }
-      
-        } catch (error) {
-          console.error('Error updating quantity:', error);
-        }
-      };
 
-  useEffect(() => {
-    async function fetchProducts() {
-      try {
-        const response = await api.get('/items');
-        console.log('Request URL:', response.config.url); // Log the request URL
-        setProducts(response.data);
-      } catch (err) {
-        setError('Failed to load product data.');
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchProducts();
-  }, []);
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>{error}</div>;
+
+
+  if (!products) return <div>Loading...</div>;
 
   return (
     <div className={styles.product_list}>
@@ -155,8 +109,8 @@ function Products({ userInfo,setuserInfo, isLoggedIn,setCartDetails,cartDetails 
           .slice() // Make a shallow copy to avoid mutating the original array
           .sort((a, b) => a.id - b.id) // Sort by id in ascending order
       .map((product) => {
-
-          const cartItem = userInfo?.cart?.find((cartItem) => cartItem.itemid === product.id); // Check whether item is in the cart
+ 
+          const cartItem = userInfo? userInfo.cart.find((cartItem) => cartItem.itemid === product.id) : cart.find((cartItem) => cartItem.itemid === product.id);
           const isInCart = cartItem !== undefined; // Check if it's in the cart
           const itemCount = cartItem?.itemcount || 0; // Get the item count 
         

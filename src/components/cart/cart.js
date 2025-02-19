@@ -1,18 +1,24 @@
 import { useEffect, useState } from "react";
-import axios from 'axios';
 import AlertBox from "../alertbox/alertbox";
-import DialogBox from "../dialogbox/dialogbox";
+//import DialogBox from "../dialogbox/dialogbox";
+import CourierDialogBox from '../courier/courier'
 import styles from "./cart.module.css";
 import api from "../../api";
 
 
-function Cart({ setuserInfo,userInfo, isLoggedIn,setCartDetails,cartDetails}) {
+function Cart({userInfo,cartDetails,updateCartInfo,updateQuantity,successfulPurchase}) {
 
   const [selectedItems, setSelectedItems] = useState([]);
   const [totalPrice, setTotalPrice] = useState(0);
   const [isAlertVisible, setAlertVisible] = useState(false);
   const [currentAlert, setAlert] = useState("");
+
   const [isPurchasingDialogVisible, setPurchasingDialogVisible] = useState(false);
+  const [courierDetails, setCourierDetails] = useState({
+    phoneNumber: '',
+    deliveryAddress: userInfo ? userInfo.address : '',
+    paymentmethod:'Cash-On-Delivery' // default payment method
+  });
 
   const showAlert = (Alert) => {
     setAlert(Alert);
@@ -34,22 +40,9 @@ function Cart({ setuserInfo,userInfo, isLoggedIn,setCartDetails,cartDetails}) {
     }
   };
 
-  const handleSuccessedPurchase_=async ()=>{
-    //showAlert("Thank you for shopping with us");
-    const removeItems = cartDetails.filter((item) => selectedItems.includes(item.itemid));
-    // Map to get only the item IDs
-    const removeItemIds = removeItems.map(item => item.itemid);
 
-    console.log(removeItemIds)
-    await api.put(`/users/cart/removeitems`, {
-      id: userInfo.id,
-      itemids: removeItemIds,
-    }
-    );
-    await updateUserInfo();
-    setSelectedItems([]);
-    showAlert("Thank you for shopping with us");
-  }
+
+
 
     const purchase =()=>{
       if(totalPrice==0){
@@ -62,6 +55,7 @@ function Cart({ setuserInfo,userInfo, isLoggedIn,setCartDetails,cartDetails}) {
 
 
     const handleSuccessedPurchase = async () => {
+      const total = parseFloat(totalPrice);
       const removeItems = cartDetails.filter((item) => selectedItems.includes(item.itemid));
       console.log(removeItems);
       // Map to get only the item IDs
@@ -80,23 +74,36 @@ function Cart({ setuserInfo,userInfo, isLoggedIn,setCartDetails,cartDetails}) {
         }
         console.log(cart_);
         const transactionData = {
-          userid: userInfo.id,
-          amount: parseFloat(totalPrice),
+          ...(userInfo && { userid: userInfo.id }), // Include only if userInfo exists
+          amount: total,
           type:"ONLINE",
-          cart: { items: cart_},
+          cart: { items: cart_,
+          },
         };
         const response = await api.post("/transaction", transactionData);
   
-        await updateUserInfo();
+            // Step 2: Create courier using transactionId
+        const courierData = {
+          transactionid: response.data.id,
+          customerid: userInfo? userInfo.id:"Not-Registered",
+          courierserviceid: "Default",
+          status: "Pending",
+          paymentmethod: courierDetails.paymentmethod,
+          cart: { items: cart_,
+            phoneNumber: courierDetails.phoneNumber,
+            deliveryAddress:courierDetails.deliveryAddress,
+            amount:total
+          },
+    };
+      const response_ =await api.post("/courier", courierData);
+      console.log(response_.data)
+      successfulPurchase(selectedItems);// call upon successful purchase to updatre cart userifo cart details and producut stock
         setSelectedItems([]);
         showAlert("Thank you for shopping with us");
       } catch (err) {
         showAlert('Failed to log transaction.','ok');
-      }
+      } 
     };
-
-
-
 
 
     // Handle checkbox change
@@ -115,6 +122,7 @@ function Cart({ setuserInfo,userInfo, isLoggedIn,setCartDetails,cartDetails}) {
 
     // Calculate total price when selectedItems change
     useEffect(() => {
+      console.log("Cart Details:", cartDetails);
       let total = 0; 
       const selectedItemsInCart = cartDetails.filter((item) => selectedItems.includes(item.itemid));
       console.log("SelectedItems Updated",selectedItemsInCart,selectedItems)
@@ -126,94 +134,26 @@ function Cart({ setuserInfo,userInfo, isLoggedIn,setCartDetails,cartDetails}) {
       setTotalPrice(total);
     }, [selectedItems, cartDetails]);
 
-  useEffect(() => { // Runs after userinfo.cart updated
-    console.log('Cart Update....');
-    updateCartDetails();
-  }, [userInfo]); 
-
-// Function to handle quantity update via API
-  const updateQuantity = async (itemid,newQuantity) => {
-      try {
-        await api.post(`/users/cart`, {
-          id: userInfo.id,
-          itemid: itemid,
-          itemcount: newQuantity
-        });
-
-      // If the new quantity exceeds stock, uncheck the item
-      const updatedItem = cartDetails.find((item) => item.itemid === itemid);
-      if (updatedItem && newQuantity > updatedItem.stock) {
-        setSelectedItems((prevSelectedItems) =>
-          prevSelectedItems.filter((id) => id !== itemid)
-        );
-      }
-          updateUserInfo();
-      
-      } catch (error) {
-        console.error('Error updating quantity:', error);
-      }
-    };
-
-    const updateUserInfo = async () => {  // Update Cart
-      console.log('Cart changed');
-      if(userInfo){
-      console.log('id: '+userInfo.id)
-      const updated_userinfo_res = await api.get(`/users/${userInfo.id}`);
-      console.log(updated_userinfo_res)
-      if(updated_userinfo_res){
-        setuserInfo(updated_userinfo_res.data)
-      }}
-    }
-
-    const updateCartDetails = async () => {
-      if (userInfo && userInfo.cart) {
-        const updatedCart = await Promise.all(
-          userInfo.cart.map(async (item) => {
-            try {
-              const response = await api.get(`/items/${item.itemid}`); 
-              const productData = response.data;
-              return {
-                ...item,
-                name: productData.name,
-                price: productData.price,
-                stock: productData.stock,
-                special_price:productData.special_price,
-                images:productData.images
-              };
-            } catch (error) {
-              console.error(`Error fetching product data for item ID ${item.itemid}:`, error);
-              return null;
-            }
-          })
-        );
-        // Filter out qll half fetched details
-        const filteredCart = updatedCart.filter(item => item !== null).filter(item => item.itemcount >= 1);
-        setCartDetails(filteredCart); // Update state with product details
-      }
-    };
-  ///updateCartDetails(); // Update Cartonce loaded
-  if (!isLoggedIn) {
-    return <div>Please create an account to start shopping.</div>;
+  if (cartDetails.length === 0) {
+    return <div> 
+      <p>
+Your cart is empty.
+    </p>
+      </div>;
   }
-
-  if (!userInfo || !userInfo.cart || userInfo.cart.length === 0) {
-    return <div>Your cart is empty.</div>;
-  }
-  
   return (
-    
     <div className={styles.cartContainer}>
-      <h2 className={styles.cartHeader}>Greetings {userInfo.firstname} ! Continue shopping with us</h2>
+      <h2 className={styles.cartHeader}>Greetings {userInfo? userInfo.firstname:''} ! Continue shopping with us</h2>
       <h2 className={styles.cartHeader}>Your Cart</h2>
       <ul className={styles.cartList}>
         {cartDetails.map((item, index) => (
           <li className={styles.cartItem} key={index}>
             <input
-            className={styles.checkbox}
+              className={styles.checkbox}
               type="checkbox"
               onChange={(e) => handleCheckboxChange(item.itemid, e.target.checked)}
               checked={selectedItems.includes(item.itemid)} // Check if the item is selected
-              disabled = {item.stock < item.itemcount} // Disable checking out if stock is less than item count
+              disabled = {item.stock < item.itemcount} // Disable checking out if stock is less than item count 
             />
 
             <p>{item.name}</p>
@@ -232,7 +172,7 @@ function Cart({ setuserInfo,userInfo, isLoggedIn,setCartDetails,cartDetails}) {
             </div>
             <div className={ styles.buttonContainer}>
             <button className ={`${styles.button} ${styles.redbutton}`} onClick={() => updateQuantity(item.itemid, 0)}>Remove from Cart</button>
-            <button className ={`${styles.button} ${styles.purplebutton}`} onClick={() => updateQuantity(item.itemid, item.itemcount + 1)}>+</button>
+            <button className ={`${styles.button} ${styles.purplebutton}`} onClick={() => updateQuantity(item.itemid, item.itemcount + 1)} disabled={item.stock <= item.itemcount}>+</button>
             <button className ={`${styles.button} ${styles.purplebutton}`} onClick={() => updateQuantity(item.itemid, item.itemcount - 1)} disabled={item.itemcount <= 1}>-</button>
             </div>
           </li>
@@ -240,8 +180,14 @@ function Cart({ setuserInfo,userInfo, isLoggedIn,setCartDetails,cartDetails}) {
       </ul>
       <h3>Total Price of Selected Items: ${totalPrice.toFixed(2)}</h3>
       <button className ={`${styles.button} ${styles.greenbutton}`} onClick={purchase}>Purchase</button>
-      <AlertBox isOpen = {isAlertVisible} onClose={closeAlert} message={currentAlert}/>
-      <DialogBox isOpen = {isPurchasingDialogVisible} onClose={closePurchasingDialog} message="Are you sure to proceed to purchasing ?" />
+      <AlertBox isOpen = {isAlertVisible} onClose={closeAlert} message={currentAlert} />
+      <CourierDialogBox
+        isOpen={isPurchasingDialogVisible}
+        onClose={closePurchasingDialog}
+        message="Please edit your delivery details and confirm the purchase"
+        setCourierDetails ={setCourierDetails}
+        courierDetails={courierDetails}
+      /> 
     </div>
   );
 }

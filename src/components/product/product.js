@@ -126,10 +126,6 @@ function ProductDetails({ userInfo,setuserInfo}) {
         }
       }, [userInfo, product]);
 
-
-
-
-
       const updateUserInfo = async () => {
         if(userInfo){
         console.log('id: '+userInfo.id)
@@ -159,9 +155,6 @@ function ProductDetails({ userInfo,setuserInfo}) {
             }
           };
     
-
-
-
   if (!product) {
     return <div>Product not found</div>;
   }
