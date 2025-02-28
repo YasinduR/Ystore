@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import AlertBox from "../alertbox/alertbox";
 //import DialogBox from "../dialogbox/dialogbox";
 import CourierDialogBox from '../courier/courier'
+import PaymentPage from "../payment/payment";
 import styles from "./cart.module.css";
 import api from "../../api";
 
@@ -17,8 +18,10 @@ function Cart({userInfo,cartDetails,updateCartInfo,updateQuantity,successfulPurc
   const [courierDetails, setCourierDetails] = useState({
     phoneNumber: '',
     deliveryAddress: userInfo ? userInfo.address : '',
-    paymentmethod:'Cash-On-Delivery' // default payment method
+    paymentMethod:"Cash-On-Delivery" // default payment method
   });
+
+  const[isPaymentOpen,setPaymentWindow] =useState(false); // for payements only
 
   const showAlert = (Alert) => {
     setAlert(Alert);
@@ -33,17 +36,40 @@ function Cart({userInfo,cartDetails,updateCartInfo,updateQuantity,successfulPurc
     setPurchasingDialogVisible(true);
   };
 
+  const showPaymentgateway = () => {
+    setPaymentWindow(true); // Payment gateway
+  };
+
   const closePurchasingDialog = (is_confirmed) => {
     setPurchasingDialogVisible(false);
+
     if(is_confirmed){
-      handleSuccessedPurchase();
+      console.log("data passed",courierDetails);
+      console.log("Payment Method:", courierDetails.paymentMethod);
+      if(courierDetails.paymentMethod === 'Cash-on-Delivery'){
+        console.log("Cash payment")
+        handleSuccessedPurchase(); //
+      }
+      else{
+        console.log("online payment")
+        showPaymentgateway();
+      }
+      
     }
   };
 
 
-
-
-
+  const closePaymentGateway =(is_payed) =>{
+    setPaymentWindow(false);
+    if(is_payed){
+      console.log("data passed",courierDetails);
+      handleSuccessedPurchase();
+      }
+    else{
+      setPurchasingDialogVisible(true);
+    }
+    }
+  
     const purchase =()=>{
       if(totalPrice==0){
         showAlert("Please Select items to Purchase");
@@ -88,7 +114,7 @@ function Cart({userInfo,cartDetails,updateCartInfo,updateQuantity,successfulPurc
           customerid: userInfo? userInfo.id:"Not-Registered",
           courierserviceid: "Default",
           status: "Pending",
-          paymentmethod: courierDetails.paymentmethod,
+          paymentmethod: courierDetails.paymentMethod,
           cart: { items: cart_,
             phoneNumber: courierDetails.phoneNumber,
             deliveryAddress:courierDetails.deliveryAddress,
@@ -139,6 +165,7 @@ function Cart({userInfo,cartDetails,updateCartInfo,updateQuantity,successfulPurc
       <p>
 Your cart is empty.
     </p>
+    <AlertBox isOpen = {isAlertVisible} onClose={closeAlert} message={currentAlert} />
       </div>;
   }
   return (
@@ -168,7 +195,6 @@ Your cart is empty.
           </p>
           
           )}
-            <p>stock: {item.stock}</p>
             </div>
             <div className={ styles.buttonContainer}>
             <button className ={`${styles.button} ${styles.redbutton}`} onClick={() => updateQuantity(item.itemid, 0)}>Remove from Cart</button>
@@ -188,6 +214,7 @@ Your cart is empty.
         setCourierDetails ={setCourierDetails}
         courierDetails={courierDetails}
       /> 
+      <PaymentPage isOpen={isPaymentOpen} onClose={closePaymentGateway}></PaymentPage>
     </div>
   );
 }

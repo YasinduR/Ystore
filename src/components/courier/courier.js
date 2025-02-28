@@ -7,52 +7,69 @@ const CourierDialogBox = ({ isOpen, onClose, message,setCourierDetails,courierDe
   const [deliveryAddress, setDeliveryAddress] = useState(courierDetails?.deliveryAddress || "");
   const [error,setError] = useState({phoneNumber:false,deliveryAddress:false});
   const [paymentMethod, setPaymentMethod] = useState("cash"); // Cash on delivary by defult
-  
+  const[isSet,setisSet] = useState(false); // ensure product is set
+ 
   useEffect(()=>{
     if (courierDetails) {
       setPhoneNumber(courierDetails.phoneNumber);
       setDeliveryAddress(courierDetails.deliveryAddress);
       setError({ phoneNumber: false, deliveryAddress: false });
+      setisSet(false);
     }
    },[courierDetails]);
 
-   const validatePhoneNumber = (value) => {
-    if (!value.trim()) {
+   useEffect(()=>{
+    if (isSet){
+      console.log(courierDetails);
+      onClose(true); // exit the window with data
+    }
+   },[isSet]);
+
+   const validatePhoneNumber = () => {
+    if (!phoneNumber.trim()) {
       setError((prevState) => ({ ...prevState, phoneNumber: "Phone number cannot be empty." }));
-    } else if (!/^\d{10}$/.test(value)) {
+    } else if (!/^\d{10}$/.test(phoneNumber)) {
       setError((prevState) => ({ ...prevState, phoneNumber: "Phone number must be exactly 10 digits." }));
     } else {
       setError((prevState) => ({ ...prevState, phoneNumber: false }));
     }
   };
 
-  const validateAddress = (value) => {
-    if (!value.trim()) {
+  const validateAddress = () => {
+    if (!deliveryAddress.trim()) {
       setError((prevState) => ({ ...prevState, deliveryAddress: "Delivery address cannot be empty." }));
     } else {
       setError((prevState) => ({ ...prevState, deliveryAddress: false }));
     }
   };
 
+  useEffect(()=>{
+    validatePhoneNumber();
+   },[phoneNumber]);
 
+   useEffect(()=>{
+    validateAddress();
+   },[deliveryAddress]);
 
+   
 
-  const handleConfirm = () => {
-    validatePhoneNumber(phoneNumber);
-    validateAddress(deliveryAddress);
-
-    if (error.phoneNumber ||  error.deliveryAddress) {
+  const handleConfirm = (e) => {
+    e.preventDefault(); // Prevent form submission
+  
+    // If errors exist, prevent submission
+    if (error.phoneNumber || error.deliveryAddress) {
+      console.log("Validation failed:", error);
       return;
     }
-    else{
-    // Pass phone and address to the parent
+  
+    //console.log()
+    // Pass details to parent component
     setCourierDetails({
-        phoneNumber: phoneNumber,
-        deliveryAddress: deliveryAddress,
-        paymentMethod: paymentMethod === 'cash' ? 'Cash-on-Delivery': 'Online'
-      });
-    onClose(true);
-    }
+      phoneNumber: phoneNumber,
+      deliveryAddress: deliveryAddress,
+      paymentMethod: paymentMethod === "cash" ? "Cash-on-Delivery" : "Online",
+    });
+    setisSet(true);
   };
 
   const handleCancel = () => {
@@ -74,7 +91,6 @@ const CourierDialogBox = ({ isOpen, onClose, message,setCourierDetails,courierDe
       value={phoneNumber}
       onChange={(e) => {
         setPhoneNumber(e.target.value);
-        validatePhoneNumber(e.target.value);
       }}
       className={styles.input}
     />
@@ -89,7 +105,6 @@ const CourierDialogBox = ({ isOpen, onClose, message,setCourierDetails,courierDe
       value={deliveryAddress}
       onChange={(e) => {
         setDeliveryAddress(e.target.value);
-        validateAddress(e.target.value);
       }}
       className={styles.input}
     />
@@ -122,7 +137,7 @@ const CourierDialogBox = ({ isOpen, onClose, message,setCourierDetails,courierDe
     </label>
     </div>
   <div className={styles.buttonContainer}>
-    <button className={styles.button} onClick={handleConfirm}>Confirm</button>
+    <button className={styles.button} onClick={handleConfirm} disabled={error.phoneNumber || error.deliveryAddress}>Confirm</button>
     <button className={styles.button} onClick={handleCancel}>Cancel</button>
   </div>
 </form>

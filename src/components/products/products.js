@@ -49,7 +49,6 @@ function ProductItem({ product, isInCart, itemCount, updateQuantity}) {
       </div>
     
       <p>{product.description}</p>
-      <p>Stock: {product.stock}</p>
 
       {!product.special_price ? (
         <p className="original-price">Price: ${product.price}</p>
@@ -126,6 +125,8 @@ function Products({products, userInfo,cart,updateQuantity }){
           closeAlert={closeAlert}
         />
             <DialogBox isOpen = {isAlertVisible} onClose={closeAlert} message="Please Log-in to your account to continue shopping. Do you want to log-in" />
+         
+         
           </div>
           
         );
