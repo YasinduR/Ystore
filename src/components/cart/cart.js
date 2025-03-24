@@ -1,14 +1,16 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState,useContext } from "react";
 import AlertBox from "../alertbox/alertbox";
 //import DialogBox from "../dialogbox/dialogbox";
 import CourierDialogBox from '../courier/courier'
 import PaymentPage from "../payment/payment";
 import styles from "./cart.module.css";
 import api from "../../api";
+import { getAuthConfig } from "../../config/authConfig";
+import { UserContext } from "../../context/userContext";
 
+function Cart() {
 
-function Cart({userInfo,cartDetails,updateCartInfo,updateQuantity,successfulPurchase}) {
-
+  const {userInfo,cartDetails,updateCartInfo,updateQuantity,successfulPurchase} = useContext(UserContext);
   const [selectedItems, setSelectedItems] = useState([]);
   const [totalPrice, setTotalPrice] = useState(0);
   const [isAlertVisible, setAlertVisible] = useState(false);
@@ -102,11 +104,21 @@ function Cart({userInfo,cartDetails,updateCartInfo,updateQuantity,successfulPurc
         const transactionData = {
           ...(userInfo && { userid: userInfo.id }), // Include only if userInfo exists
           amount: total,
-          type:"ONLINE",
           cart: { items: cart_,
           },
         };
-        const response = await api.post("/transaction", transactionData);
+
+        let response;
+        
+        if(userInfo){
+          const config =  await getAuthConfig();
+          console.log("Account Mode")
+          response = await api.post(`/transaction/${userInfo.id}/online`, transactionData,config); // Account mode
+        }
+        else{
+          console.log("Guest Mode")
+          response = await api.post(`/transaction/guest-transaction`, transactionData); // Guest mode
+        }
   
             // Step 2: Create courier using transactionId
         const courierData = {
@@ -121,7 +133,7 @@ function Cart({userInfo,cartDetails,updateCartInfo,updateQuantity,successfulPurc
             amount:total
           },
     };
-      const response_ =await api.post("/courier", courierData);
+      const response_ =await api.post("/orders", courierData);
       console.log(response_.data)
       successfulPurchase(selectedItems);// call upon successful purchase to updatre cart userifo cart details and producut stock
         setSelectedItems([]);

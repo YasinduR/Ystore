@@ -1,11 +1,12 @@
 // src/components/Login.js
-import React, { useState,useEffect} from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import axios from 'axios';
 import AlertBox from '../alertbox/alertbox'
 import DialogBox from '../dialogbox/dialogbox';
 import styles from './login.module.css'
 import api from '../../api'
+import { UserContext } from '../../context/userContext';
 
 
 const validateEmail=(email)=> {
@@ -13,7 +14,9 @@ const validateEmail=(email)=> {
   return regex.test(email);
 }
 
-const Login = ({ isLoggedIn,setIsLoggedIn,setuserInfo }) => {
+const Login = () => {
+
+  const { isLoggedIn, setIsLoggedIn, setUserInfo } = useContext(UserContext); // Consume UserCon
   const navigate = useNavigate(); // Initialize useNavigate hook
   const [email, setEmail] = useState('YASINDU1@EXAMPLE.COM'); // For ease the test add defualt user acc user name and pwd
   const [password, setPassword] = useState('12345');
@@ -23,13 +26,11 @@ const Login = ({ isLoggedIn,setIsLoggedIn,setuserInfo }) => {
   const [isloginlocked,setloginlock] = useState(false);
 
   const showAlert = () => {
-    console.log("Alert shown")
     setAlertVisible(true);
     
   };
 
   const closeAlert = () => {
-    console.log("Alert closed")
     setAlertVisible(false);
     navigate('/');// Navigate to the home page
   };
@@ -51,15 +52,16 @@ const Login = ({ isLoggedIn,setIsLoggedIn,setuserInfo }) => {
     event.preventDefault();
     try {
       const response = await api.post('/users/login', { email, password });
-      console.log(response.data); // Handle the login success response here
-      //alert('Login successful!');
-      //Send user info to the app
-      // Set user as logged in (to update nav bar)
       setIsLoggedIn(true);
-      setuserInfo(response.data)
+      setUserInfo(response.data.user);
+      console.log(response.data.user);
+      // store tokens
+      localStorage.setItem("accessToken", response.data.accessToken);
+      localStorage.setItem("refreshToken", response.data.refreshToken);
+
+      
       showAlert();
 
-              
     } catch (err) { 
 
       if (err.response) {
@@ -78,6 +80,8 @@ const Login = ({ isLoggedIn,setIsLoggedIn,setuserInfo }) => {
     }
   };
   };
+
+
   if(isLoggedIn && !isAlertVisible){ // Already logged in but alert not showing => when browse to login page throu url
     return(
       <div>

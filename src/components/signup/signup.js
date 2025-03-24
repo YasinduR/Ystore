@@ -1,6 +1,7 @@
 // src/components/SignUp.js
-import React, { useState,useEffect } from 'react';
+import React, { useState,useEffect,useContext } from 'react';
 import { useNavigate } from 'react-router-dom'; 
+import { UserContext } from '../../context/userContext';
 //import axios from 'axios';
 import AlertBox from '../alertbox/alertbox'
 import styles from './signup.module.css'
@@ -26,14 +27,9 @@ const isempty=(string_)=>{
 
 }
 
-const SignUp = ({ userInfo, isLoggedIn,setIsLoggedIn,setuserInfo}) => {
+const SignUp = () => {
 
-  
-
-
-
-
-
+  const {userInfo, isLoggedIn,setIsLoggedIn,setUserInfo} = useContext(UserContext);
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     firstName: '',
@@ -79,10 +75,6 @@ const SignUp = ({ userInfo, isLoggedIn,setIsLoggedIn,setuserInfo}) => {
   };
 
   
-
-
-
-
   useEffect(()=>{
     if(!validateEmail(formData.email)&&formData.email.length>0){
       setemailError(true)
@@ -197,7 +189,7 @@ const SignUp = ({ userInfo, isLoggedIn,setIsLoggedIn,setuserInfo}) => {
   const handleLogoutConfirm = (confirm) => {  // Yes on dialog box will give
     setIsDialogOpen(false);
     if (confirm) {
-      setuserInfo(null);
+      setUserInfo(null);
       setIsLoggedIn(false);
     }
   };

@@ -1,8 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useState } from 'react';
+import { UserContext } from '../../context/userContext';
 import DialogBox from '../dialogbox/dialogbox';
 import {useNavigate, Link} from 'react-router-dom';
 import styles from './products.module.css'
-import api from '../../api'; // Import the Axios instance
+
+// import api from '../../api'; // Import the Axios instance
 
 function ProductItem({ product, isInCart, itemCount, updateQuantity}) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -24,6 +26,7 @@ function ProductItem({ product, isInCart, itemCount, updateQuantity}) {
   return (
    // <Link to={`/products/${product.id}`} className={styles.productLink}>
     <div className={styles.product} key={product.id}>
+      <Link to={`/products/${product.id}`} className={styles.productLink}>
       <h2>{product.name}</h2>
 
 
@@ -45,9 +48,9 @@ function ProductItem({ product, isInCart, itemCount, updateQuantity}) {
             />
           ))}
         </div>
-
+        
       </div>
-    
+      </Link>
       <p>{product.description}</p>
 
       {!product.special_price ? (
@@ -74,9 +77,9 @@ function ProductItem({ product, isInCart, itemCount, updateQuantity}) {
   );
 }
 
-function Products({products, userInfo,cart,updateQuantity }){
+function Products(){
   const navigate = useNavigate(); // Initialize useNavigate hook
-  
+  const { products, userInfo, cart, updateQuantity } = useContext(UserContext);
   //const [loading, setLoading] = useState(true);
  // const [error, setError] = useState(null);
   const [isAlertVisible, setAlertVisible] = useState(false);
